@@ -318,18 +318,23 @@ Redact sensitive data before export:
 
 ```typescript
 const config: ResolveConfigFn = (env, trigger) => ({
-	// ... exporter config
-	postProcessor: (spans) => {
-		return spans.map((span) => {
-			// Redact URLs with tokens
-			if (span.attributes['http.url']) {
-				span.attributes['http.url'] = span.attributes['http.url'].replace(/token=[^&]+/, 'token=REDACTED')
-			}
-			// Remove sensitive headers
-			delete span.attributes['http.request.header.authorization']
-			return span
-		})
-	},
+	return {
+		trace: {
+			exporter: {
+				// ... exporter config
+			},
+			postProcessor: (spans) => {
+				return spans.map((span) => {
+					// Redact URLs with tokens
+					if (span.attributes['http.url']) {
+						span.attributes['http.url'] = span.attributes['http.url'].replace(/token=[^&]+/, 'token=REDACTED')
+					}
+					// Remove sensitive headers
+					delete span.attributes['http.request.header.authorization']
+					return span
+				})
+			},
+	// ...
 })
 ```
 
